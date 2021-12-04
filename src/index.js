@@ -9,20 +9,62 @@ app.use(cors());
 
 const users = [];
 
+function uuidValidateV4(uuid) {
+  return uuidValidate(uuid) && uuidVersion(uuid) === 4;
+}
+
 function checksExistsUserAccount(request, response, next) {
-  // Complete aqui
+  const { username } = request.headers;
+ 
+  const user = users.find(u => u.username === username);
+ 
+  if(!user) {
+    return response.status(404).json({ error: "User don't found" })
+  }  
+
+  request.user = user;
+  
+  return next()
 }
 
 function checksCreateTodosUserAvailability(request, response, next) {
-  // Complete aqui
+     const { user } = request;
+     
+     if(!user.pro && user.todos.length === 10) {
+        return response.status(403).send()
+     }
+  
+     return next()
 }
 
 function checksTodoExists(request, response, next) {
-  // Complete aqui
+   const { username } = request.headers;
+   const { id } = request.params;
+  
+   const userFind = users.find(u => u.username === username);
+  
+   if(userFind) return response.status(404).json({ error: "User not'found" });
+   if(uuidValidateV4(id)) return response.status(400).json({ error: "O id informado não é um uuid" });
+  
+   const todo = user.todos.find(todo => todo.id === id);
+   if(!todo) return response.status(404).json({ error: "Todo not'found" })
+  
+   request.user = userFind;
+   request.todo = todo;
+  
+   return next()
 }
 
 function findUserById(request, response, next) {
-  // Complete aqui
+  const { id } = request.params;
+  
+  const user = users.find(u => u.id === id);
+  
+  if(!user) return response.status(404).json({ error: 'User not found' })
+  
+  request.user = user
+  
+  return next()
 }
 
 app.post('/users', (request, response) => {
